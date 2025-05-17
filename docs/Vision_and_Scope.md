@@ -27,10 +27,11 @@ Clariad aims to empower software development teams with an intelligent AI-driven
    - Conditional transitions and decision logic for complex workflows
    - Branching and looping capability for iterative development tasks
 
-4. **MCP Protocol Support** - Conversational interaction:
-   - Integration with Claude Desktop and OpenWebUI clients
+4. **Claude Desktop Integration** - Seamless extension through MCP:
+   - Implementation as an MCP extension for Claude Desktop
+   - Tool-based interaction model for agent capabilities
    - Support for both autonomous execution and conversational collaboration
-   - Natural language interface for development tasks and queries
+   - Efficient context management for complex workflows
    - Real-time feedback and progress updates
 
 5. **Software Engineering Best Practices** - Built-in methodologies:
@@ -56,19 +57,19 @@ git
 
 The following aspects are explicitly excluded from the current scope:
 
-1. **Direct Code Execution Environment** - Clariad does not provide a runtime environment for executing code. It integrates with existing CI/CD systems but does not replace them.
+1. **Direct LLM API Integration** - Clariad does not establish separate LLM connections but instead leverages Claude Desktop's existing LLM capability.
 
-2. **UI/UX Design Generation** - While Clariad can document UI requirements and suggest implementation approaches, it does not generate visual designs or UI mockups.
+2. **Support for Non-Claude MCP Clients** - While the MCP protocol could theoretically support other clients, Clariad is specifically designed and optimized for Claude Desktop.
 
-3. **Infrastructure Provisioning** - Clariad documents deployment needs but does not directly provision cloud resources or infrastructure.
+3. **Direct Code Execution Environment** - Clariad does not provide a runtime environment for executing code. It integrates with existing CI/CD systems but does not replace them.
 
-4. **Training Data Management** - The system does not include features for collecting, labeling, or managing training data for AI models.
+4. **UI/UX Design Generation** - While Clariad can document UI requirements and suggest implementation approaches, it does not generate visual designs or UI mockups.
 
-5. **User Authentication/Authorization** - Clariad relies on GitHub's existing permissions and does not implement its own user management.
+5. **Infrastructure Provisioning** - Clariad documents deployment needs but does not directly provision cloud resources or infrastructure.
 
-6. **Standalone IDE Integration** - The focus is on GitHub integration rather than direct IDE plugins (VS Code, JetBrains, etc.).
+6. **User Authentication/Authorization** - Clariad relies on GitHub's existing permissions and does not implement its own user management.
 
-7. **Non-Software Projects** - Clariad is specifically designed for software development and may not be suitable for hardware, mechanical, or other non-software projects.
+7. **Standalone IDE Integration** - The focus is on GitHub integration rather than direct IDE plugins (VS Code, JetBrains, etc.).
 
 ## Stakeholders & Users
 
@@ -122,9 +123,11 @@ The success of the Clariad AI Agent Ecosystem will be measured by:
    - 100% adherence to documentation standards
    - 30% improvement in developer satisfaction regarding documentation clarity
 
-4. **System Performance**
-   - Less than 5% error rate in agent-GitHub interactions
-   - 4.5/5 user rating for conversational clarity and ease of interaction
+4. **Claude Desktop Integration**
+   - Successful tool registration with Claude Desktop in 100% of installations
+   - 95% success rate in agent-to-agent context transitions
+   - 90% user satisfaction with the Claude Desktop integration
+   - Less than 5% of agent interactions failing due to context limitations
 
 5. **Workflow Integration**
    - Successful validation across 5 pilot projects

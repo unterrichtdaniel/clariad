@@ -101,16 +101,16 @@ The following high-level epics have been identified based on the Vision and Scop
 - Pull request creation and review
 - Commit management
 
-## Epic 10: MCP Protocol Integration
+## Epic 10: Claude Desktop MCP Integration
 **As a** user,  
-**We want** to interact with the Clariad agent ecosystem through MCP-compatible clients  
-**So that** we can use familiar interfaces like Claude Desktop or OpenWebUI.
+**We want** to interact with the Clariad agent ecosystem through Claude Desktop  
+**So that** we can access specialized software development capabilities through a familiar interface.
 
 **Key Features:**
-- MCP server implementation
-- Request routing to appropriate agents
-- Conversation state management
-- Tool usage handling through MCP
+- MCP server implementation for Claude Desktop
+- Specialized agent registration as Claude tools
+- Efficient context management for tool invocations
+- Streamlined tool response handling
 
 ---
 

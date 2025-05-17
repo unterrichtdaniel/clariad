@@ -24,12 +24,21 @@ The Clariad ecosystem consists of the following major components:
 
 ### 1. MCP Interface Layer
 
-**Responsibility**: Provides the user-facing conversational interface to the Clariad system.
+**Responsibility**: Provides the user-facing conversational interface to the Clariad system and communicates with Claude Desktop.
 
 - Acts as the communication gateway between users and the agent ecosystem
-- Translates user input into appropriate commands for the orchestrator
+- Implements the MCP server protocol for integration with Claude Desktop using standard input/output (stdio)
+- Registers specialized agents as tools that Claude can invoke using the MCP tool registration format
+- Tool registration includes:
+  - Tool name/identifier (e.g., "vision_agent", "architecture_agent")
+  - Tool description (explaining the agent's purpose to users)
+  - Parameters schema (defining what input the agent requires)
+  - Return format specification (structuring the agent's output)
 - Handles streaming of agent responses back to the client
 - Formats tool usage and other special operations for MCP clients
+- Maintains a consistent interface between Claude Desktop and the agent ecosystem
+
+For a detailed technical reference on MCP implementation with Claude Desktop, see [Desktop Commander MCP Technical Reference](./references/Desktop_Commander_MCP_Technical_Reference.md).
 
 ### 2. LangGraph Orchestrator
 
@@ -38,7 +47,7 @@ The Clariad ecosystem consists of the following major components:
 - Implements the directed graph of agent nodes and their transitions
 - Maintains shared state and memory context for inter-agent communication
 - Handles conditional logic, branching, and looping for complex workflows
-- Routes requests to appropriate agents based on conversation context
+- Routes tool invocations from Claude Desktop to appropriate agents
 - Manages execution mode (autonomous vs. conversational)
 
 ### 3. Specialized Agent Nodes
@@ -113,44 +122,51 @@ The following diagram illustrates the high-level data flow through the Clariad s
 
 ```mermaid
 graph TD
-    User[User via MCP Client] <--> MCP[MCP Interface Layer]
-    MCP <--> Orchestrator[LangGraph Orchestrator]
-    Orchestrator <--> Memory[Semantic Memory System]
-    Orchestrator <--> GitHub[GitHub Integration Layer]
-    Orchestrator <--> Vision[Vision & Scope Agent]
-    Orchestrator <--> Arch[Architecture Agent]
-    Orchestrator <--> Task[Task Refinement Agent]
-    Orchestrator <--> Dev[Development Agent]
-    Orchestrator <--> Review[Review Agent]
-    Orchestrator <--> Deploy[Deployment Agent]
-    Orchestrator <--> Feedback[Feedback Agent]
-    Vision --> Memory
-    Arch --> Memory
-    Task --> Memory
-    Dev --> Memory
-    Review --> Memory
-    Deploy --> Memory
-    Feedback --> Memory
-    Vision <--> GitHub
-    Arch <--> GitHub
-    Task <--> GitHub
-    Dev <--> GitHub
-    Review <--> GitHub
-    Deploy <--> GitHub
-    Feedback <--> GitHub
-    Orchestrator <--> ObsF[Observability Framework]
+    User[User] <--> Claude[Claude Desktop LLM API]
+    Claude <--> |stdio MCP Protocol| MCP[MCP Interface Layer]
+    
+    subgraph "Clariad MCP Server"
+        MCP <--> |Tool Invocation| Orchestrator[LangGraph Orchestrator]
+        Orchestrator <--> Memory[Semantic Memory System]
+        Orchestrator <--> GitHub[GitHub Integration Layer]
+        Orchestrator <--> Vision[Vision & Scope Agent]
+        Orchestrator <--> Arch[Architecture Agent]
+        Orchestrator <--> Task[Task Refinement Agent]
+        Orchestrator <--> Dev[Development Agent]
+        Orchestrator <--> Review[Review Agent]
+        Orchestrator <--> Deploy[Deployment Agent]
+        Orchestrator <--> Feedback[Feedback Agent]
+        Vision --> Memory
+        Arch --> Memory
+        Task --> Memory
+        Dev --> Memory
+        Review --> Memory
+        Deploy --> Memory
+        Feedback --> Memory
+        Vision <--> GitHub
+        Arch <--> GitHub
+        Task <--> GitHub
+        Dev <--> GitHub
+        Review <--> GitHub
+        Deploy <--> GitHub
+        Feedback <--> GitHub
+        Orchestrator <--> ObsF[Observability Framework]
+    end
 ```
 
 ### Workflow Sequence
 
-1. **User Input**: A user interacts with the system through an MCP-compatible client.
-2. **Request Routing**: The MCP Interface translates the request and forwards it to the Orchestrator.
-3. **Agent Selection**: The Orchestrator determines which agent(s) should process the request.
-4. **Context Gathering**: The selected agent retrieves relevant information from Semantic Memory and/or GitHub.
-5. **Processing**: The agent performs its specialized function (design, coding, review, etc.).
-6. **Artifact Creation**: The agent generates outputs and stores them in GitHub and Semantic Memory.
-7. **Response**: Results are returned to the user through the MCP Interface.
-8. **Observability**: All steps are logged and traced through the Observability Framework.
+1. **User Input**: A user interacts with Claude Desktop via its interface.
+2. **Claude Processing**: Claude determines it needs to use a Clariad agent tool and sends a tool invocation request to the MCP Server.
+3. **MCP Communication**: The request is sent via standard input/output (stdio) to the Clariad MCP server as defined in the Claude Desktop configuration file.
+4. **MCP Handling**: The MCP Interface receives the tool request and forwards it to the Orchestrator.
+5. **Agent Selection**: The Orchestrator determines which agent should process the request based on the tool invoked.
+6. **Context Gathering**: The selected agent retrieves relevant information from Semantic Memory and/or GitHub.
+7. **Processing**: The agent performs its specialized function (design, coding, review, etc.).
+8. **Artifact Creation**: The agent generates outputs and stores them in GitHub and Semantic Memory.
+9. **Response**: Results are returned to Claude Desktop via the MCP Interface through the stdio channel.
+10. **Claude Response**: Claude incorporates the agent's results into its response to the user.
+11. **Observability**: All steps are logged and traced through the Observability Framework.
 
 ## Technology Stack Choices
 
@@ -165,7 +181,7 @@ The following technology choices form the foundation of the Clariad architecture
 | Observability | Langfuse | Specialized for LLM application tracing and monitoring |
 | Version Control | GitHub | Required by specifications, industry standard |
 | Documentation | Markdown | Required by specifications, readable and widely supported |
-| MCP Server | Custom implementation | Necessary for MCP protocol compatibility |
+| MCP Server | Model Context Protocol SDK | MCP compatibility for Claude Desktop integration |
 
 ### Infrastructure Considerations
 
@@ -182,8 +198,9 @@ The Clariad ecosystem interfaces with external systems at several key points:
 ### 1. MCP Client Integration
 
 - **Protocol**: Model-Client Protocol (MCP)
-- **Clients**: Claude Desktop, OpenWebUI
-- **Capabilities**: Streaming responses, tool usage, multi-turn dialogue
+- **Client**: Claude Desktop
+- **Capabilities**: Tool registration, streaming responses, multi-turn dialogue
+- **Connection Method**: Standard input/output (stdio) through MCP server registration
 
 ### 2. GitHub Integration
 
@@ -194,12 +211,7 @@ The Clariad ecosystem interfaces with external systems at several key points:
   - Pull requests (read/write)
   - Workflow (read/write) for CI/CD configuration
 
-### 3. LLM Provider Integration
-
-- **API Access**: Anthropic Claude API, potentially other providers
-- **Capabilities**: Context window handling, function calling, structured output
-
-### 4. CI/CD System Integration
+### 3. CI/CD System Integration
 
 - **Systems**: GitHub Actions (primary), potentially others
 - **Integration Type**: Configuration file generation, status monitoring
@@ -209,11 +221,11 @@ The Clariad ecosystem interfaces with external systems at several key points:
 | Risk | Description | Mitigation |
 |------|-------------|------------|
 | LLM Limitations | Model hallucinations or knowledge cutoff issues | Implement validation checks, fact-grounding, and human feedback loops |
+| Claude Desktop Dependency | Reliance on Claude Desktop's LLM capabilities | Ensure efficient context management, design for graceful degradation |
 | GitHub API Rate Limits | Potential throttling with high activity | Implement rate limiting, request batching, and API usage optimization |
 | Security Boundaries | Agents need appropriate permissions | Use principle of least privilege, validate operations before execution |
 | Maintainability Complexity | Multiple agents may be difficult to maintain | Strong modularity, comprehensive documentation, shared utilities |
 | User Experience Consistency | Multiple agents might lead to inconsistent UX | Single MCP interface layer, standardized response formats |
-| Cost Management | LLM API usage costs could escalate | Optimize prompt design, cache results, implement usage monitoring |
 
 ## Architecture Mapping to Requirements
 
@@ -224,7 +236,7 @@ The table below maps key features from the Vision & Scope document to the archit
 | Comprehensive Multi-Agent Ecosystem | Specialized Agent Nodes, LangGraph Orchestrator |
 | GitHub Integration | GitHub Integration Layer |
 | LangGraph Orchestration | LangGraph Orchestrator, Shared State & Memory |
-| MCP Protocol Support | MCP Interface Layer |
+| Claude Desktop Integration | MCP Interface Layer, Claude Desktop MCP Tools |
 | Software Engineering Best Practices | Built into agent prompt designs and workflows |
 | Observability & Traceability | Observability Framework, Langfuse integration |
 | Extensible Infrastructure | Modular design, Semantic Memory System |
@@ -247,42 +259,58 @@ The following diagram illustrates a more detailed view of the Clariad system arc
 
 ```mermaid
 flowchart TB
-    subgraph "User Interaction Layer"
-        MCP[MCP Interface]
+    User((User))
+    
+    subgraph "Claude Desktop"
+        CD[Claude App]
+        LLM[Claude LLM API]
     end
-
-    subgraph "Orchestration Layer"
-        LG[LangGraph Orchestrator]
-        SM[State Manager]
-        Router[Request Router]
+    
+    subgraph "Clariad MCP Server"
+        subgraph "MCP Layer"
+            MCP[MCP Interface]
+            Tools[Tool Registration]
+            ResponseHandler[Response Formatter]
+        end
+        
+        subgraph "Orchestration Layer"
+            LG[LangGraph Orchestrator]
+            SM[State Manager]
+            Router[Request Router]
+        end
+        
+        subgraph "Agent Layer"
+            VA[Vision & Scope Agent]
+            AA[Architecture Agent]
+            TA[Task Refinement Agent]
+            DA[Development Agent]
+            RA[Review Agent]
+            DPA[Deployment Agent]
+            FA[Feedback Agent]
+        end
+        
+        subgraph "Persistence Layer"
+            VDB[(Vector Database)]
+            VStore[Vector Store]
+        end
+        
+        subgraph "Integration Layer"
+            GH[GitHub Integration]
+            CICD[CI/CD Integration]
+        end
+        
+        subgraph "Observability Layer"
+            LF[Langfuse]
+            Logger[Logging System]
+            Metrics[Metrics Collection]
+        end
     end
-
-    subgraph "Agent Layer"
-        VA[Vision & Scope Agent]
-        AA[Architecture Agent]
-        TA[Task Refinement Agent]
-        DA[Development Agent]
-        RA[Review Agent]
-        DPA[Deployment Agent]
-        FA[Feedback Agent]
-    end
-
-    subgraph "Persistence Layer"
-        VDB[(Vector Database)]
-        VStore[Vector Store]
-    end
-
-    subgraph "Integration Layer"
-        GH[GitHub Integration]
-        CICD[CI/CD Integration]
-    end
-
-    subgraph "Observability Layer"
-        LF[Langfuse]
-        Logger[Logging System]
-        Metrics[Metrics Collection]
-    end
-
+    
+    User --> CD
+    CD --> LLM
+    LLM <-.->|stdio MCP Protocol| MCP
+    MCP <--> Tools
+    MCP <--> ResponseHandler
     MCP <--> LG
     LG <--> SM
     LG <--> Router
@@ -332,6 +360,6 @@ flowchart TB
 **Document Status**: Approved  
 **Last Updated**: May 17, 2025  
 **Created By**: Architecture Agent  
-**Version**: 1.0
+**Version**: 2.0
 
-See the [architecture/](./architecture/) directory for detailed Architecture Decision Records (ADRs).
+See the [architecture/](./architecture/) directory for detailed Architecture Decision Records (ADRs), including the new [ADR-011: Claude Desktop LLM Integration](./architecture/ADR-011-claude-desktop-llm-integration.md).

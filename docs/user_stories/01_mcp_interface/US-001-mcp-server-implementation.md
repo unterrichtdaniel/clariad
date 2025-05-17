@@ -1,37 +1,37 @@
 # US-001: MCP Server Implementation
 
 **As a** user,  
-**I want** to interact with the Clariad system through MCP-compatible clients  
-**So that** I can use familiar interfaces like Claude Desktop or OpenWebUI.
+**I want** to interact with the Clariad system through Claude Desktop  
+**So that** I can access specialized software development capabilities through a familiar interface.
 
 ## Acceptance Criteria
 
-### Scenario: Connection Establishment
-- Given I have an MCP-compatible client
-- When I initiate a connection to the Clariad system
-- Then the system should establish a successful connection
-- And acknowledge with a welcome message
+### Scenario: MCP Server Registration
+- Given I have Claude Desktop installed
+- When I configure the claude_desktop_config.json file with Clariad's MCP server
+- Then the Clariad system should be registered with Claude Desktop
+- And be accessible as a tool provider in conversations
 
-### Scenario: Request Routing
-- Given I am connected to the Clariad system
-- When I send a request related to any development phase
-- Then the system should route my request to the appropriate agent
-- And return a response from that agent
+### Scenario: Tool Invocation
+- Given I am using Claude Desktop with Clariad configured
+- When I ask Claude to perform a software development task
+- Then Claude should invoke the appropriate Clariad tool
+- And the system should route the request to the right agent
 
-### Scenario: Streaming Responses
-- Given I have sent a request to the Clariad system
-- When an agent is processing my request
-- Then I should receive real-time streaming responses
-- And see incremental progress updates
+### Scenario: Result Integration
+- Given Clariad has processed a tool request from Claude
+- When the agent returns its results
+- Then Claude should incorporate those results into its response
+- And present a coherent reply to my request
 
-### Scenario: Tool Usage Format
-- Given I have requested an action requiring tool usage
-- When the agent uses GitHub or other integrated tools
-- Then the tool usage should be properly formatted according to MCP protocol
-- And the results should be presented clearly in the conversation
+### Scenario: Streaming Updates
+- Given a Clariad agent is performing a lengthy operation
+- When the operation is in progress
+- Then I should receive real-time streaming updates
+- And see incremental progress through Claude Desktop
 
-### Scenario: Conversation History
-- Given I have had previous interactions with the system
+### Scenario: Context Management
+- Given I have had previous interactions with Clariad agents
 - When I continue the conversation with a new request
 - Then the system should maintain appropriate context from past interactions
 - And respond with awareness of the conversation history
@@ -39,18 +39,19 @@
 ## Definition of Ready Checklist
 
 - [x] MCP protocol documentation has been reviewed
-- [x] Connection requirements are clearly defined
-- [x] Message format specifications are available
+- [x] Claude Desktop configuration requirements are clear
+- [x] Tool registration process is understood
+- [x] Communication protocol (stdio) is established
 - [x] Error handling requirements are specified
-- [x] Performance expectations are documented
 
 ## Technical Notes
 
-This user story requires understanding the Model-Client Protocol (MCP) specifications and implementing a server that can route requests to the appropriate agents in the Clariad ecosystem. The MCP server will need to handle streaming responses and maintain conversation state across multiple interactions.
+This user story requires implementing a Model Context Protocol (MCP) server that can register with Claude Desktop and expose Clariad's specialized agents as tools. The server will communicate with Claude Desktop via standard input/output (stdio) and follow the MCP protocol specifications for tool invocation and result handling. Instead of using direct API connections to LLM providers, Clariad will leverage Claude Desktop's existing LLM connection.
 
 ## Related Architecture Elements
 
 - ADR-004: MCP Protocol Integration
+- ADR-011: Claude Desktop LLM Integration
 - MCP Interface Layer in the system architecture
 
 ---

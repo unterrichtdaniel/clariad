@@ -10,10 +10,10 @@ The following diagram illustrates the major components of the Clariad system and
 graph TB
     User((User))
     
-    subgraph "Clients"
-        Claude[Claude Desktop]
-        OpenWebUI[OpenWebUI]
-        OtherMCP[Other MCP Clients]
+    subgraph "Claude Desktop"
+        Claude[Claude App]
+        ClaudeLLM[Claude LLM]
+        Claude <--> ClaudeLLM
     end
     
     subgraph "Clariad System"
@@ -37,25 +37,18 @@ graph TB
         subgraph "Integration Layer"
             GitHub[GitHub Integration]
             Langfuse[Observability]
-            LLM[LLM API Integration]
         end
     end
     
     subgraph "External Systems"
         GitHubRepo[(GitHub Repository)]
         CI[CI/CD Systems]
-        LLMProvider[LLM Provider APIs]
     end
     
     User --> Claude
-    User --> OpenWebUI
-    User --> OtherMCP
+    Claude <--> MCP
     
-    Claude --> MCP
-    OpenWebUI --> MCP
-    OtherMCP --> MCP
-    
-    MCP --> Orchestrator
+    MCP <--> Orchestrator
     
     Orchestrator --> Vision
     Orchestrator --> Architecture
@@ -75,17 +68,8 @@ graph TB
     Deployment <--> GitHub
     Feedback <--> GitHub
     
-    Vision <--> LLM
-    Architecture <--> LLM
-    Task <--> LLM
-    Development <--> LLM
-    Review <--> LLM
-    Deployment <--> LLM
-    Feedback <--> LLM
-    
     GitHub <--> GitHubRepo
     Deployment <--> CI
-    LLM <--> LLMProvider
     
     Orchestrator --> Langfuse
 ```
@@ -97,6 +81,7 @@ The following diagram illustrates the workflow sequence for the Clariad agent sy
 ```mermaid
 sequenceDiagram
     participant User as User
+    participant Claude as Claude Desktop
     participant MCP as MCP Interface
     participant Orch as Orchestrator
     participant Vision as Vision & Scope
@@ -109,14 +94,22 @@ sequenceDiagram
     participant GitHub as GitHub
     participant Memory as Semantic Memory
     
-    User->>MCP: Request project creation
-    MCP->>Orch: Forward request
+    User->>Claude: Request project creation
+    Claude->>MCP: Invoke Clariad tool
+    MCP->>Orch: Forward tool request
     
     Orch->>Vision: Initiate Vision & Scope
     Vision->>Memory: Retrieve related context
     Vision->>GitHub: Create Vision_and_Scope.md
     Vision->>Memory: Store outputs
     Vision->>Orch: Complete
+    
+    Orch->>MCP: Return initial results
+    MCP->>Claude: Provide tool response
+    Claude->>User: Show vision results
+    
+    Claude->>MCP: Invoke architecture tool
+    MCP->>Orch: Forward tool request
     
     Orch->>Arch: Initiate Architecture
     Arch->>Memory: Retrieve Vision & Scope
@@ -125,6 +118,13 @@ sequenceDiagram
     Arch->>Memory: Store outputs
     Arch->>Orch: Complete
     
+    Orch->>MCP: Return architecture results
+    MCP->>Claude: Provide tool response
+    Claude->>User: Show architecture results
+    
+    Claude->>MCP: Invoke task refinement tool
+    MCP->>Orch: Forward tool request
+    
     Orch->>Task: Initiate Task Refinement
     Task->>Memory: Retrieve Vision & Architecture
     Task->>GitHub: Create UserStories.md
@@ -132,14 +132,26 @@ sequenceDiagram
     Task->>Memory: Store outputs
     Task->>Orch: Complete
     
+    Orch->>MCP: Return task results
+    MCP->>Claude: Provide tool response
+    Claude->>User: Show task results
+    
     loop For each user story
+        Claude->>MCP: Invoke development tool
+        MCP->>Orch: Forward tool request
         Orch->>Dev: Initiate Development
         Dev->>Memory: Retrieve story & architecture
         Dev->>GitHub: Create tests
         Dev->>GitHub: Implement code
         Dev->>Memory: Store outputs
         Dev->>Orch: Complete
+        Orch->>MCP: Return development results
+        MCP->>Claude: Provide tool response
+        Claude->>User: Show development progress
     end
+    
+    Claude->>MCP: Invoke review tool
+    MCP->>Orch: Forward tool request
     
     Orch->>Review: Initiate Review
     Review->>GitHub: Get PR/commits
@@ -149,17 +161,38 @@ sequenceDiagram
     Review->>Orch: Complete (approve/request changes)
     
     alt Changes Requested
+        Orch->>MCP: Return review issues
+        MCP->>Claude: Provide tool response
+        Claude->>User: Show needed changes
+        User->>Claude: Approve fixes
+        Claude->>MCP: Invoke fix tool
+        MCP->>Orch: Forward tool request
         Orch->>Dev: Fix issues
         Dev->>GitHub: Update code
         Dev->>Orch: Complete fixes
         Orch->>Review: Re-review
+        Review->>Orch: Approve changes
     end
+    
+    Orch->>MCP: Return review results
+    MCP->>Claude: Provide tool response
+    Claude->>User: Show review results
+    
+    Claude->>MCP: Invoke deployment tool
+    MCP->>Orch: Forward tool request
     
     Orch->>Deploy: Initiate Deployment
     Deploy->>GitHub: Configure CI/CD
     Deploy->>GitHub: Tag release
     Deploy->>Memory: Store outputs
     Deploy->>Orch: Complete
+    
+    Orch->>MCP: Return deployment results
+    MCP->>Claude: Provide tool response
+    Claude->>User: Show deployment results
+    
+    Claude->>MCP: Invoke feedback tool
+    MCP->>Orch: Forward tool request
     
     Orch->>Feedback: Initiate Feedback
     Feedback->>GitHub: Analyze repo state
@@ -169,8 +202,9 @@ sequenceDiagram
     Feedback->>Memory: Store outputs
     Feedback->>Orch: Complete
     
-    Orch->>MCP: Return results
-    MCP->>User: Present complete project
+    Orch->>MCP: Return feedback results
+    MCP->>Claude: Provide tool response
+    Claude->>User: Present complete project summary
 ```
 
 ## LangGraph State Machine

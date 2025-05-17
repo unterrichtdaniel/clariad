@@ -14,9 +14,9 @@ Clariad is a modular, AI-driven ecosystem designed to enhance software developme
 
 | Key Results | Measurable Outcome |
 |-------------|-------------------|
-| KR 1.1 | Deploy all 7 specialized AI agents (Vision & Scope, Architecture, Task Refinement, Development, Review, Deployment, Feedback) in a unified LangGraph orchestration within 2 months |
+| KR 1.1 | Deploy all 7 specialized AI agents (Vision & Scope, Architecture, Task Refinement, Development, Review, Deployment, Feedback) as MCP tools available through Claude Desktop within 2 months |
 | KR 1.2 | Achieve 95% accuracy in agent-generated outputs (architecture docs, BDD scenarios, TDD tests, Markdown docs) measured by internal quality reviews |
-| KR 1.3 | Enable agent interaction through MCP protocol successfully, tested and validated with Claude Desktop and OpenWebUI clients |
+| KR 1.3 | Successfully integrate with Claude Desktop through the MCP protocol, with all agent capabilities accessible as Claude tools |
 
 ### Objective 2: Seamlessly integrate AI agents with GitHub for practical, actionable outputs
 
@@ -42,13 +42,13 @@ Clariad is a modular, AI-driven ecosystem designed to enhance software developme
 | KR 4.2 | Ensure agents can be easily updated or replaced individually without breaking the system; validated by 2 successful updates within the initial deployment quarter |
 | KR 4.3 | Document architecture thoroughly, providing at least one high-quality C4-style architecture diagram in project documentation |
 
-### Objective 5: Establish streamlined conversational interactions with the agent ecosystem accessible through MCP-compatible clients
+### Objective 5: Establish streamlined conversational interactions with the agent ecosystem through Claude Desktop
 
 | Key Results | Measurable Outcome |
 |-------------|-------------------|
-| KR 5.1 | Validate conversational UX via MCP protocol, achieving user-rated conversational clarity and ease of interaction (average rating of at least 4.5/5 in pilot feedback) |
-| KR 5.2 | Successfully demonstrate both autonomous execution (full cycle from Vision to Feedback without intervention) and conversational collaboration modes during pilot projects |
-| KR 5.3 | Integrate robust error-handling and informative conversational responses (via MCP) for all agent actions, reducing user confusion/error-related inquiries by 50% within 3 months |
+| KR 5.1 | Ensure seamless user experience within Claude Desktop, achieving user-rated ease of interaction (average rating of at least 4.5/5 in pilot feedback) |
+| KR 5.2 | Successfully demonstrate both autonomous execution (full cycle from Vision to Feedback with minimal intervention) and interactive collaboration modes during pilot projects |
+| KR 5.3 | Implement efficient context management to maximize Claude Desktop's capabilities, with 95% of agent interactions completing successfully without context limitations |
 
 ## Additional Vision Statements (Prioritized)
 

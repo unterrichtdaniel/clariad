@@ -6,11 +6,11 @@ Accepted
 
 ## Context
 
-The Clariad AI Agent Ecosystem needs to provide a conversational interface that allows users to interact with the system through familiar clients. The Model-Client Protocol (MCP) is emerging as a standard for LLM-based applications, supported by clients like Claude Desktop and OpenWebUI.
+The Clariad AI Agent Ecosystem needs to provide a conversational interface that allows users to interact with the system through familiar clients. The Model-Client Protocol (MCP) is emerging as a standard for LLM-based applications, supported by clients like Claude Desktop. We need to determine how to best integrate with this protocol.
 
 ## Decision
 
-We will implement an MCP protocol server as the primary interface for user interaction with the Clariad AI Agent Ecosystem, enabling seamless integration with MCP-compatible clients.
+We will implement Clariad as an MCP extension for Claude Desktop, registering specialized agents as tools that Claude can invoke during conversations. This will allow Clariad to leverage Claude Desktop's existing LLM connection while providing specialized software development capabilities.
 
 ## Alternatives Considered
 
@@ -22,15 +22,15 @@ We will implement an MCP protocol server as the primary interface for user inter
    - Pros: Standard interface, client-agnostic.
    - Cons: Poor support for streaming responses, less conversational, more complex integration.
 
-3. **CLI Interface**: Command-line interface for developer-focused interaction.
-   - Pros: Simplicity, scriptability, familiar to developers.
-   - Cons: Limited accessibility, poor UX for non-technical users, no streaming.
+3. **Standalone MCP Client**: Building a complete MCP client with its own LLM connection.
+   - Pros: Full control over the entire system, independence from Claude Desktop.
+   - Cons: Requires LLM API keys, additional costs, duplicates existing functionality.
 
 ## Decision Drivers
 
 1. **User Experience**: Need for a natural, conversational interface.
-2. **Client Flexibility**: Allowing users to choose their preferred interface.
-3. **Streaming Support**: Requirement for streaming agent responses in real-time.
+2. **Efficient LLM Usage**: Leverage existing Claude Desktop LLM connection rather than establishing new ones.
+3. **Integration Simplicity**: Follow the established pattern of successful MCP extensions.
 4. **Standards Adoption**: Following emerging standards in the LLM application space.
 5. **Tool Integration**: Support for complex tool usage patterns by agents.
 
@@ -38,31 +38,30 @@ We will implement an MCP protocol server as the primary interface for user inter
 
 ### Positive
 
-- Enables users to access Clariad through familiar interfaces like Claude Desktop
+- Enables users to access Clariad through the familiar Claude Desktop interface
+- Leverages existing Claude Desktop LLM connection without additional API costs
 - Provides a conversational experience with real-time streaming responses
-- Simplifies integration with existing LLM workflows
-- Follows emerging standards in the AI assistant ecosystem
-- Handles complex multi-agent interactions behind a unified interface
+- Follows emerging standards for AI assistant extensions
+- True extension model rather than a parallel system
 
 ### Negative
 
-- Reliance on a relatively new protocol that may evolve
-- Additional complexity in handling protocol-specific requirements
-- Possible limitations in protocol capabilities for specialized interactions
-- Need for protocol-compliant error handling and message formatting
+- Dependency on Claude Desktop's capabilities and limitations
+- Limited control over the LLM interaction (compared to direct API access)
+- Possible constraints on parallelization of agent operations
+- Need for efficient context management within Claude's context window
 
 ## Implementation Notes
 
-- Implement an MCP-compatible server that exposes the agent ecosystem
-- Support streaming responses from agents to clients
-- Handle proper formatting of tool usage and specialized content
-- Route user requests to the appropriate agent via the orchestrator
-- Maintain conversation state for multi-turn interactions
-- Support both autonomous and interactive operation modes
+- Implement Clariad as an MCP server that registers with Claude Desktop via the claude_desktop_config.json file
+- Register specialized agents as tools that Claude can invoke when needed
+- Use standard input/output (stdio) for communication with Claude Desktop
+- Design the system to handle tool invocation requests from Claude
+- Implement efficient context management to work within Claude's context window
 - Ensure proper error handling and recovery within protocol constraints
 
 ## Related Decisions
 
 - ADR-001: Multi-Agent System Architecture
 - ADR-002: LangGraph as Orchestration Framework
-- ADR-005: GitHub Integration Strategy
+- ADR-011: Claude Desktop LLM Integration
