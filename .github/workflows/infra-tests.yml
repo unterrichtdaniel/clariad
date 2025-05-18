@@ -1,0 +1,169 @@
+name: Infrastructure Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths:
+      - 'docker-compose.yml'
+      - 'Dockerfile'
+      - '.env.template'
+      - 'infrastructure/**'
+      - 'scripts/setup_dev.sh'
+      - 'scripts/test-vector-db.sh'
+      - '.github/workflows/infra-tests.yml'
+  pull_request:
+    branches: [ main, master, develop ]
+    paths:
+      - 'docker-compose.yml'
+      - 'Dockerfile'
+      - '.env.template'
+      - 'infrastructure/**'
+      - 'scripts/setup_dev.sh'
+      - 'scripts/test-vector-db.sh'
+      - '.github/workflows/infra-tests.yml'
+  # Run weekly to catch issues even if the files haven't changed
+  schedule:
+    - cron: '0 0 * * 0'  # Run at midnight on Sundays
+
+jobs:
+  validate-config:
+    name: Validate Configuration Files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Validate Docker Compose file
+        run: docker-compose config
+
+      - name: Validate .env.template
+        run: |
+          # Check that all environment variables are properly formatted
+          if grep -E "^[A-Za-z_][A-Za-z0-9_]*=" .env.template > /dev/null; then
+            echo ".env.template variables are properly formatted"
+          else
+            echo "Error: .env.template has improperly formatted variables"
+            exit 1
+          fi
+
+      - name: Check required values in .env.template
+        run: |
+          # Check for essential variables
+          for VAR in "POSTGRES_USER" "POSTGRES_PASSWORD" "VECTOR_DB_USER" "VECTOR_DB_PASSWORD"; do
+            if ! grep -q "^$VAR=" .env.template; then
+              echo "Error: $VAR missing from .env.template"
+              exit 1
+            fi
+          done
+          echo "All required variables are present in .env.template"
+
+  docker-test:
+    name: Docker Environment Test
+    runs-on: ubuntu-latest
+    needs: validate-config
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Generate .env file from template
+        run: cp .env.template .env
+
+      - name: Start Docker Compose environment
+        run: docker-compose up -d
+
+      - name: Wait for services to be ready
+        run: sleep 30
+
+      - name: Check services health
+        run: |
+          docker-compose ps
+          echo "Checking PostgreSQL..."
+          docker-compose exec -T postgres pg_isready || exit 1
+
+          echo "Checking Vector Database..."
+          docker-compose exec -T vector_db pg_isready || exit 1
+
+          echo "Checking Redis..."
+          docker-compose exec -T redis redis-cli ping || exit 1
+
+          echo "Checking MinIO..."
+          curl -s http://localhost:9090/minio/health/live || echo "MinIO health check doesn't return health info, checking port is open"
+          nc -z localhost 9090 || exit 1
+
+          echo "All service health checks passed!"
+
+      - name: Test vector database setup
+        run: |
+          # Create a temporary script to test the vector database
+          cat > test-vector.sh << 'EOF'
+          #!/bin/bash
+          set -e
+          docker-compose exec -T vector_db psql -U postgres -d vector_db -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          docker-compose exec -T vector_db psql -U postgres -d vector_db -c "SELECT '[1,2,3]'::vector <-> '[4,5,6]'::vector AS distance;"
+          docker-compose exec -T vector_db psql -U postgres -d vector_db -c "
+            CREATE TABLE IF NOT EXISTS test_embeddings (
+              id SERIAL PRIMARY KEY,
+              content TEXT NOT NULL,
+              embedding vector(3)
+            );"
+          docker-compose exec -T vector_db psql -U postgres -d vector_db -c "
+            INSERT INTO test_embeddings (content, embedding) VALUES ('test', '[1,2,3]');"
+          docker-compose exec -T vector_db psql -U postgres -d vector_db -c "
+            SELECT * FROM test_embeddings WHERE embedding <-> '[1,2,3]' < 0.1;"
+          docker-compose exec -T vector_db psql -U postgres -d vector_db -c "
+            DROP TABLE test_embeddings;"
+          EOF
+
+          chmod +x test-vector.sh
+          ./test-vector.sh
+
+      - name: Collect logs on failure
+        if: failure()
+        run: docker-compose logs > docker-logs.txt
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-logs
+          path: docker-logs.txt
+
+      - name: Teardown Docker environment
+        run: docker-compose down -v
+
+  setup-script-test:
+    name: Test Setup Script
+    runs-on: ubuntu-latest
+    needs: validate-config
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check setup script permissions
+        run: |
+          if [ ! -x ./scripts/setup_dev.sh ]; then
+            echo "Making setup script executable"
+            chmod +x ./scripts/setup_dev.sh
+          fi
+
+      - name: Validate setup script syntax
+        run: bash -n ./scripts/setup_dev.sh
+
+      - name: Check for required components in setup script
+        run: |
+          # Check for essential steps in setup script
+          for COMPONENT in "poetry install" "docker-compose" "cp .env.template .env"; do
+            if ! grep -q "$COMPONENT" ./scripts/setup_dev.sh; then
+              echo "Warning: $COMPONENT might be missing from setup script"
+            fi
+          done
+
+      - name: Test vector DB test script
+        run: |
+          if [ ! -x ./scripts/test-vector-db.sh ]; then
+            echo "Making vector DB test script executable"
+            chmod +x ./scripts/test-vector-db.sh
+          fi
+
+          # Validate script syntax
+          bash -n ./scripts/test-vector-db.sh

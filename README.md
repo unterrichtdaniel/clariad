@@ -16,9 +16,43 @@ Clariad is a modular, robust, and maintainable multi-agent AI ecosystem that emb
 
 ## Getting Started
 
-1. Install Claude Desktop
-2. Configure Clariad in your Claude Desktop configuration file
-3. Start a new conversation in Claude Desktop and begin using Clariad's specialized development tools
+### Prerequisites
+
+- Python 3.10+ with Poetry
+- Docker and Docker Compose
+- Claude Desktop
+
+### Development Setup
+
+1. Clone this repository:
+```bash
+git clone https://github.com/yourusername/clariad.git
+cd clariad
+```
+
+2. Run the setup script:
+```bash
+./scripts/setup_dev.sh
+```
+
+This will:
+- Install dependencies with Poetry
+- Set up pre-commit hooks
+- Create a `.env` file from the template
+- Start the required Docker services (Postgres, Vector DB, Langfuse, etc.)
+
+3. Configure Claude Desktop
+4. Start a new conversation in Claude Desktop and begin using Clariad's specialized development tools
+
+### Development Environment
+
+The environment includes:
+- PostgreSQL for primary database
+- PostgreSQL with pgvector for vector database (embeddings)
+- Langfuse for AI observability
+- MinIO for object storage
+- Redis for caching and messaging
+- ClickHouse for analytics
 
 For detailed installation and usage instructions, see the [Getting Started Guide](docs/Getting_Started.md).
 
