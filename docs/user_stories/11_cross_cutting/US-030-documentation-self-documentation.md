@@ -1,7 +1,7 @@
 # US-030: Documentation and Self-documentation
 
-**As a** project contributor,  
-**I want** the system to maintain comprehensive documentation about itself  
+**As a** project contributor,
+**I want** the system to maintain comprehensive documentation about itself
 **So that** the architecture, functionality, and usage are clear to all stakeholders.
 
 ## Acceptance Criteria
@@ -48,6 +48,8 @@
 
 This user story addresses the documentation needs of the Clariad system, including the ability to generate and maintain documentation about itself. The implementation should support updating architecture documentation when changes are detected, documenting agent capabilities and APIs, creating user guides, and tracking documentation versions. This self-documentation capability ensures that the system's documentation remains accurate and useful over time.
 
+All documentation generated or updated by the system must adhere to the [Documentation Style Guide](/docs/documentation-style-guide.md) and meet the requirements specified in the project's [Definition of Done](/docs/process/definition-of-done.md).
+
 ## Related Architecture Elements
 
 - ADR-010: Markdown as Documentation Format
@@ -57,6 +59,6 @@ This user story addresses the documentation needs of the Clariad system, includi
 
 ---
 
-*Priority: 4-Optimization and Extensions*  
-*Story Points: 5*  
+*Priority: 4-Optimization and Extensions*
+*Story Points: 5*
 *Created: May 17, 2025*

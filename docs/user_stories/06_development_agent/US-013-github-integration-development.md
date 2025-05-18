@@ -1,7 +1,7 @@
 # US-013: GitHub Integration for Development
 
-**As a** software developer,  
-**I want** the Development agent to effectively use GitHub for code management  
+**As a** software developer,
+**I want** the Development agent to effectively use GitHub for code management
 **So that** code changes are properly tracked and associated with user stories.
 
 ## Acceptance Criteria
@@ -33,7 +33,7 @@
 ### Scenario: Definition of Done Verification
 - Given development work is complete
 - When the Development agent prepares for review
-- Then it should verify all Definition of Done criteria are met
+- Then it should verify all [Definition of Done](/docs/process/definition-of-done.md) criteria are met
 - And address any deficiencies before submitting the PR
 
 ## Definition of Ready Checklist
@@ -56,6 +56,6 @@ This user story enhances the Test-First Implementation (US-012) by focusing on t
 
 ---
 
-*Priority: 3-Enhanced Functionality*  
-*Story Points: 5*  
+*Priority: 3-Enhanced Functionality*
+*Story Points: 5*
 *Created: May 17, 2025*

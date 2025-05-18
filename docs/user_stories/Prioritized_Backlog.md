@@ -1,6 +1,6 @@
 # Clariad AI Agent Ecosystem: Prioritized Backlog
 
-This document outlines the prioritized order for implementing user stories based on dependencies and value delivery.
+This document outlines the prioritized order for implementing user stories based on dependencies and value delivery. All user stories must meet the project's [Definition of Done](/docs/process/definition-of-done.md) before being considered complete.
 
 ## Priority 1: Foundational Infrastructure
 
@@ -72,7 +72,7 @@ These stories optimize the system and add advanced capabilities.
 
 ---
 
-*Document Status: Ready for Development*  
-*Last Updated: May 17, 2025*  
-*Created By: Task Refinement Agent*  
+*Document Status: Ready for Development*
+*Last Updated: May 17, 2025*
+*Created By: Task Refinement Agent*
 *Version: 1.0*

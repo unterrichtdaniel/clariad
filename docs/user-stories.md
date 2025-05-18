@@ -8,7 +8,7 @@ The prioritized backlog can be found at [Prioritized Backlog](./user_stories/Pri
 
 ---
 
-*Document Status: Reorganized*  
-*Last Updated: May 17, 2025*  
-*Created By: Task Refinement Agent*  
+*Document Status: Reorganized*
+*Last Updated: May 17, 2025*
+*Created By: Task Refinement Agent*
 *Version: 1.0*

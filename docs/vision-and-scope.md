@@ -169,7 +169,7 @@ The Vision & Scope document is considered "Ready" when:
 
 ---
 
-*Document Status: Approved*  
-*Last Updated: May 17, 2025*  
-*Created By: Vision & Scope Agent*  
+*Document Status: Approved*
+*Last Updated: May 17, 2025*
+*Created By: Vision & Scope Agent*
 *Version: 1.0*

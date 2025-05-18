@@ -124,7 +124,7 @@ The following diagram illustrates the high-level data flow through the Clariad s
 graph TD
     User[User] <--> Claude[Claude Desktop LLM API]
     Claude <--> |stdio MCP Protocol| MCP[MCP Interface Layer]
-    
+
     subgraph "Clariad MCP Server"
         MCP <--> |Tool Invocation| Orchestrator[LangGraph Orchestrator]
         Orchestrator <--> Memory[Semantic Memory System]
@@ -252,6 +252,8 @@ This architecture design is considered "Done" when:
 - ✅ Requirements from Vision & Scope are mapped to architectural components
 - ✅ Risks and mitigations are identified
 - ✅ Technology choices are justified
+- ✅ Documentation follows the [Documentation Style Guide](/docs/documentation-style-guide.md)
+- ✅ All requirements in the [Definition of Done](/docs/process/definition-of-done.md) are satisfied
 
 ## Reference Architecture Diagram
 
@@ -260,25 +262,25 @@ The following diagram illustrates a more detailed view of the Clariad system arc
 ```mermaid
 flowchart TB
     User((User))
-    
+
     subgraph "Claude Desktop"
         CD[Claude App]
         LLM[Claude LLM API]
     end
-    
+
     subgraph "Clariad MCP Server"
         subgraph "MCP Layer"
             MCP[MCP Interface]
             Tools[Tool Registration]
             ResponseHandler[Response Formatter]
         end
-        
+
         subgraph "Orchestration Layer"
             LG[LangGraph Orchestrator]
             SM[State Manager]
             Router[Request Router]
         end
-        
+
         subgraph "Agent Layer"
             VA[Vision & Scope Agent]
             AA[Architecture Agent]
@@ -288,24 +290,24 @@ flowchart TB
             DPA[Deployment Agent]
             FA[Feedback Agent]
         end
-        
+
         subgraph "Persistence Layer"
             VDB[(Vector Database)]
             VStore[Vector Store]
         end
-        
+
         subgraph "Integration Layer"
             GH[GitHub Integration]
             CICD[CI/CD Integration]
         end
-        
+
         subgraph "Observability Layer"
             LF[Langfuse]
             Logger[Logging System]
             Metrics[Metrics Collection]
         end
     end
-    
+
     User --> CD
     CD --> LLM
     LLM <-.->|stdio MCP Protocol| MCP
@@ -321,7 +323,7 @@ flowchart TB
     Router <--> RA
     Router <--> DPA
     Router <--> FA
-    
+
     VA <--> VStore
     AA <--> VStore
     TA <--> VStore
@@ -329,9 +331,9 @@ flowchart TB
     RA <--> VStore
     DPA <--> VStore
     FA <--> VStore
-    
+
     VStore <--> VDB
-    
+
     VA <--> GH
     AA <--> GH
     TA <--> GH
@@ -339,9 +341,9 @@ flowchart TB
     RA <--> GH
     DPA <--> GH
     FA <--> GH
-    
+
     DPA <--> CICD
-    
+
     LG --> LF
     VA --> LF
     AA --> LF
@@ -350,16 +352,16 @@ flowchart TB
     RA --> LF
     DPA --> LF
     FA --> LF
-    
+
     LF <--> Logger
     LF <--> Metrics
 ```
 
 ---
 
-**Document Status**: Approved  
-**Last Updated**: May 17, 2025  
-**Created By**: Architecture Agent  
+**Document Status**: Approved
+**Last Updated**: May 17, 2025
+**Created By**: Architecture Agent
 **Version**: 2.0
 
 See the [architecture/](./architecture/) directory for detailed Architecture Decision Records (ADRs), including the new [ADR-011: Claude Desktop LLM Integration](./architecture/ADR-011-claude-desktop-llm-integration.md).

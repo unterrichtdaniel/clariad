@@ -1,4 +1,4 @@
-# Development Environment Setup
+## Development Environment Setup
 
 This guide explains how to set up your development environment for Clariad.
 
@@ -6,6 +6,16 @@ This guide explains how to set up your development environment for Clariad.
 
 - Python 3.10+ with [Poetry](https://python-poetry.org/docs/#installation)
 - [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
+
+## Development Process
+
+Before you begin development, please familiarize yourself with the following key process documents:
+
+- [Definition of Done](/docs/process/definition-of-done.md) - Requirements for completing work items
+- [Documentation Style Guide](/docs/documentation-style-guide.md) - Standards for all project documentation
+- [Architecture Documentation](/docs/Architecture.md) - System design and component interactions
+
+All contributions to Clariad should adhere to these standards.
 
 ## Initial Setup
 
@@ -37,7 +47,7 @@ source .env
 
 **Fish**:
 ```fish
-# Requires the bass plugin
+## Requires the bass plugin
 bass source .env
 ```
 
@@ -58,26 +68,26 @@ Clariad uses several Docker services:
 ### Managing Docker Services
 
 ```bash
-# View logs from all services
+## View logs from all services
 docker-compose logs -f
 
-# View logs from a specific service
+## View logs from a specific service
 docker-compose logs -f vector_db
 
-# Stop all services
+## Stop all services
 docker-compose down
 
-# Start all services
+## Start all services
 docker-compose up -d
 
-# Restart a specific service
+## Restart a specific service
 docker-compose restart vector_db
 ```
 
 ### Testing Vector Database
 
 ```bash
-# Run the test script
+## Run the test script
 ./scripts/test-vector-db.sh
 ```
 
@@ -113,3 +123,10 @@ If your application is not picking up environment variables:
    ```bash
    docker-compose config
    ```
+
+---
+
+*Document Status: Active*
+*Last Updated: May 18, 2025*
+*Created By: Development Team*
+*Version: 1.1*

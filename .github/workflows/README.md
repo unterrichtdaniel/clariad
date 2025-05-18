@@ -1,94 +1,78 @@
-# GitHub Actions CI Guide
+# Documentation Linting
 
-This guide provides a quick reference for Clariad's GitHub Actions CI workflows.
+This directory contains GitHub Actions workflows for ensuring documentation quality in the Clariad project.
 
-## CI Workflows
+## Overview
 
-Clariad uses two main GitHub Actions workflows:
+The `documentation-lint.yml` workflow runs automatically when:
+- Any Markdown file is pushed to main/master branches
+- Any Markdown file is changed in a pull request to main/master
+- The workflow is manually triggered
 
-### 1. Code Quality and Tests (`code-tests.yml`)
+## What It Checks
 
-**Triggered by**:
-- Pushes to main/master/develop branches (code files only)
-- Pull requests to these branches (code files only)
+The documentation linting process verifies:
 
-**Ignores changes to**:
-- Docker configuration
-- Infrastructure files
-- Documentation
+1. **Markdown Standards**: Basic markdown syntax and style using markdownlint
+2. **Heading Structure**:
+   - Each file has exactly one H1 heading
+   - Headings follow proper hierarchy (no skipping levels)
+3. **File Naming Conventions**:
+   - Files use kebab-case (except ADRs and User Stories)
+   - No uppercase letters or underscores in filenames
+4. **Required Metadata**:
+   - Each file includes Document Status, Last Updated, and Version
+5. **Link Validity**:
+   - Internal links point to existing files
+   - External links are reachable
+6. **Mermaid Diagrams**:
+   - Diagrams use consistent arrow styles
+7. **Spelling and Grammar**:
+   - Common spelling mistakes are caught
+   - Project-specific terms are recognized
 
-**Jobs**:
-- `lint`: Code quality checks
-- `unit-test`: Unit tests
-- `integration-test`: Integration tests with databases
+## Configuration Files
 
-### 2. Infrastructure Tests (`infra-tests.yml`)
+- `.markdownlint.json`: Rules for markdown style
+- `markdown-link-check-config.json`: Settings for link checking
+- `cspell.json`: Dictionary and rules for spell checking
 
-**Triggered by**:
-- Changes to Docker configuration
-- Changes to environment templates
-- Changes to setup scripts
-- Weekly scheduled runs
+## Manual Running
 
-**Jobs**:
-- `validate-config`: Validates configuration files
-- `docker-test`: Tests Docker environment
-- `setup-script-test`: Tests setup scripts
+You can manually trigger the workflow from the "Actions" tab in GitHub by selecting "Documentation Linting" and clicking "Run workflow".
 
-## Common CI Issues and Solutions
+## Local Testing
 
-### Code Quality Issues
+To run these checks locally before committing:
 
-| Issue | Solution |
-| ----- | -------- |
-| Black formatting failures | Run `poetry run black .` locally |
-| isort import order issues | Run `poetry run isort .` locally |
-| flake8 linting errors | Fix specific issues reported in logs |
-| mypy type errors | Add proper type annotations |
+1. Install the required tools:
+   ```bash
+   npm install -g markdownlint-cli markdown-link-check cspell
+   ```
 
-### Test Failures
+2. Run markdownlint:
+   ```bash
+   markdownlint 'docs/**/*.md'
+   ```
 
-| Issue | Solution |
-| ----- | -------- |
-| Unit test failures | Check test output and fix code issues |
-| Integration test failures | Verify database setup and connections |
-| Docker test failures | Check Docker Compose configuration |
-| Script validation failures | Verify script syntax and required components |
+3. Check links:
+   ```bash
+   find docs -name "*.md" -print0 | xargs -0 -n1 markdown-link-check
+   ```
 
-### Environment Issues
+4. Check spelling:
+   ```bash
+   cspell "docs/**/*.md"
+   ```
 
-| Issue | Solution |
-| ----- | -------- |
-| Missing environment variables | Update `.env.template` with required variables |
-| Docker service failures | Check logs in the artifacts section |
-| Database initialization issues | Verify SQL scripts and initialization code |
+## See Also
 
-## Testing Locally Before Pushing
+- [Documentation Style Guide](/docs/documentation-style-guide.md)
+- [Definition of Done](/docs/process/definition-of-done.md)
 
-Run the test script to verify your changes will pass CI:
+---
 
-```bash
-./scripts/test_ci.sh
-```
-
-This script runs all the same checks as the GitHub Actions workflows.
-
-## Adding a New CI Workflow
-
-1. Create a new YAML file in `.github/workflows/`
-2. Define triggers and jobs
-3. Test locally before pushing
-4. Update the CI/CD documentation
-
-## CI Status Badge
-
-Add this badge to README.md to show CI status:
-
-```markdown
-[![Code Tests](https://github.com/yourusername/clariad/actions/workflows/code-tests.yml/badge.svg)](https://github.com/yourusername/clariad/actions/workflows/code-tests.yml)
-[![Infrastructure Tests](https://github.com/yourusername/clariad/actions/workflows/infra-tests.yml/badge.svg)](https://github.com/yourusername/clariad/actions/workflows/infra-tests.yml)
-```
-
-## Workflow Visualization
-
-![Workflow Diagram](../docs/ci_cd/workflow-diagram.png)
+*Document Status: Active*
+*Last Updated: May 18, 2025*
+*Created By: Documentation Team*
+*Version: 1.0*

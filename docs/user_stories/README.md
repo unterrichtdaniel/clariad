@@ -2,6 +2,17 @@
 
 This directory contains the refined user stories for the Clariad AI Agent Ecosystem, broken down from the high-level requirements and architecture. Each story follows the INVEST principles (Independent, Negotiable, Valuable, Estimable, Small, Testable) and meets the Definition of Ready criteria.
 
+## User Story Process
+
+All user stories in this project must follow the process outlined below:
+1. Creation following the template in this directory
+2. Acceptance criteria defined using Gherkin syntax
+3. Technical notes added by the Architecture Agent
+4. Prioritization in the backlog
+5. Implementation by the Development Agent
+6. Review by the Review Agent
+7. Once completed, stories must meet the project's [Definition of Done](/docs/process/definition-of-done.md)
+
 ## Table of Contents
 
 ### MCP Interface Layer
@@ -62,7 +73,7 @@ For prioritized backlog and implementation order, see the [Prioritized Backlog](
 
 ---
 
-*Document Status: Ready for Development*  
-*Last Updated: May 17, 2025*  
-*Created By: Task Refinement Agent*  
+*Document Status: Ready for Development*
+*Last Updated: May 17, 2025*
+*Created By: Task Refinement Agent*
 *Version: 1.0*

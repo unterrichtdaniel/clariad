@@ -94,7 +94,7 @@ Each agent type will have specialized prompt elements:
 - TDD workflow instructions
 - Language-specific best practices
 - Documentation requirements
-- Definition of Done (DoD) checklist
+- [Definition of Done](/docs/process/definition-of-done.md) (DoD) checklist
 
 **Review Agent**:
 - Code review criteria

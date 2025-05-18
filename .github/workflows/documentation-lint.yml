@@ -1,0 +1,192 @@
+name: Documentation Linting
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'docs/**/*.md'
+      - '**/*.md'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'docs/**/*.md'
+      - '**/*.md'
+  workflow_dispatch:
+
+jobs:
+  documentation-lint:
+    runs-on: ubuntu-latest
+    name: Lint Documentation
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install markdownlint
+        run: npm install -g markdownlint-cli
+
+      - name: Install markdown-link-check
+        run: npm install -g markdown-link-check
+
+      - name: Create markdownlint config
+        run: |
+          cat > .markdownlint.json << EOL
+          {
+            "default": true,
+            "MD001": true,
+            "MD002": true,
+            "MD003": {
+              "style": "atx"
+            },
+            "MD004": {
+              "style": "dash"
+            },
+            "MD007": {
+              "indent": 2
+            },
+            "MD013": false,
+            "MD024": false,
+            "MD025": true,
+            "MD026": true,
+            "MD033": false,
+            "MD034": true,
+            "MD041": true,
+            "MD046": {
+              "style": "fenced"
+            }
+          }
+          EOL
+
+      - name: Check for markdown lint issues
+        run: markdownlint 'docs/**/*.md' '*.md'
+
+      - name: Check for valid heading structure
+        run: |
+          #!/bin/bash
+          failed=0
+          for file in $(find docs -name "*.md"); do
+            # Check if file has exactly one H1 heading
+            h1_count=$(grep -c "^# " "$file")
+            if [ "$h1_count" -ne 1 ]; then
+              echo "::error file=$file::File must have exactly one H1 heading"
+              failed=1
+            fi
+
+            # Check if headings follow hierarchical structure
+            current_level=1
+            while IFS= read -r line; do
+              if [[ "$line" =~ ^(#+)[[:space:]] ]]; then
+                level=${#BASH1}
+                if [ "$level" -gt $(($current_level + 1)) ]; then
+                  echo "::error file=$file,line=$line_num::Heading level skipped: went from H$current_level to H$level"
+                  failed=1
+                fi
+                current_level=$level
+              fi
+            done < "$file"
+          done
+          exit $failed
+        shell: bash
+
+      - name: Check file naming conventions
+        run: |
+          #!/bin/bash
+          failed=0
+          for file in $(find docs -name "*.md" -not -path "*/node_modules/*"); do
+            filename=$(basename "$file")
+            if [[ "$filename" =~ [A-Z] && ! "$filename" =~ ^adr- && ! "$filename" =~ ^us- ]]; then
+              echo "::error file=$file::File name should be kebab-case: $filename"
+              failed=1
+            fi
+
+            if [[ "$filename" =~ _ && ! "$filename" =~ ^adr- && ! "$filename" =~ ^us- ]]; then
+              echo "::error file=$file::File name should not contain underscores: $filename"
+              failed=1
+            fi
+          done
+          exit $failed
+        shell: bash
+
+      - name: Check for metadata in markdown files
+        run: |
+          #!/bin/bash
+          failed=0
+          for file in $(find docs -name "*.md" -not -path "*/node_modules/*"); do
+            if ! grep -q "Document Status:" "$file" || ! grep -q "Last Updated:" "$file" || ! grep -q "Version:" "$file"; then
+              echo "::error file=$file::File is missing required metadata (Document Status, Last Updated, Version)"
+              failed=1
+            fi
+          done
+          exit $failed
+        shell: bash
+
+      - name: Check for broken internal links
+        run: |
+          find docs -name "*.md" -print0 | xargs -0 -n1 markdown-link-check -c .github/workflows/markdown-link-check-config.json
+
+      - name: Check Mermaid diagram syntax
+        run: |
+          #!/bin/bash
+          for file in $(find docs -name "*.md"); do
+            # Extract mermaid diagrams from the file
+            diagrams=$(sed -n '/```mermaid/,/```/p' "$file")
+            if [ -n "$diagrams" ]; then
+              # Check for consistent arrow styles in diagrams
+              if echo "$diagrams" | grep -q ">" && echo "$diagrams" | grep -q "->" && echo "$diagrams" | grep -q "==>"; then
+                echo "::warning file=$file::Mermaid diagram has inconsistent arrow styles"
+              fi
+            fi
+          done
+        shell: bash
+
+  # Optional: If you want to add a job to check for spelling and grammar:
+  spelling-check:
+    runs-on: ubuntu-latest
+    name: Check Spelling and Grammar
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install cspell
+        run: npm install -g cspell
+
+      - name: Create spell check configuration
+        run: |
+          cat > cspell.json << EOL
+          {
+            "version": "0.2",
+            "language": "en",
+            "words": [
+              "Clariad",
+              "LangGraph",
+              "LangChain",
+              "Gherkin",
+              "Langfuse",
+              "PostgreSQL",
+              "pgvector",
+              "ADRs",
+              "MCP",
+              "kebab",
+              "Mermaid"
+            ],
+            "ignorePaths": [
+              "node_modules/**",
+              "*.json",
+              "*.lock"
+            ]
+          }
+          EOL
+
+      - name: Check for spelling issues
+        run: cspell "docs/**/*.md"

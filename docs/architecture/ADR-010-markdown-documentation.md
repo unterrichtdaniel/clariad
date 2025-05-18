@@ -95,3 +95,5 @@ We will use Markdown (.md) as the standard format for all documentation artifact
 
 - ADR-005: GitHub Integration Strategy
 - ADR-009: Agent Prompt Design Strategy
+- [Definition of Done](/docs/process/definition-of-done.md): Documentation requirements
+- [Documentation Style Guide](/docs/documentation-style-guide.md): Detailed standards

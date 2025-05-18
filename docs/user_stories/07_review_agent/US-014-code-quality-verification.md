@@ -1,7 +1,7 @@
 # US-014: Code Quality Verification
 
-**As a** quality assurance engineer,  
-**I want** the Review agent to thoroughly verify code quality  
+**As a** quality assurance engineer,
+**I want** the Review agent to thoroughly verify code quality
 **So that** only high-quality code is merged into the main branch.
 
 ## Acceptance Criteria
@@ -52,10 +52,10 @@ This user story follows the Test-First Implementation (US-012) in the workflow. 
 
 - Review Agent component in the system architecture
 - GitHub Integration Layer for pull request interactions
-- Definition of Done criteria implementation
+- [Definition of Done](/docs/process/definition-of-done.md) criteria implementation
 
 ---
 
-*Priority: 2-Core Agent Implementation*  
-*Story Points: 8*  
+*Priority: 2-Core Agent Implementation*
+*Story Points: 8*
 *Created: May 17, 2025*

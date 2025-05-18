@@ -151,6 +151,6 @@ For additional support, please check the [Troubleshooting Guide](./Troubleshooti
 
 ---
 
-*Document Status: Active*  
-*Last Updated: May 17, 2025*  
+*Document Status: Active*
+*Last Updated: May 17, 2025*
 *Version: 1.0*
