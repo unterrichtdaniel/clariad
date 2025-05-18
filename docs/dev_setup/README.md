@@ -1,4 +1,4 @@
-## Development Environment Setup
+# Development Environment Setup
 
 This guide explains how to set up your development environment for Clariad.
 
@@ -11,9 +11,9 @@ This guide explains how to set up your development environment for Clariad.
 
 Before you begin development, please familiarize yourself with the following key process documents:
 
-- [Definition of Done](/docs/process/definition-of-done.md) - Requirements for completing work items
-- [Documentation Style Guide](/docs/documentation-style-guide.md) - Standards for all project documentation
-- [Architecture Documentation](/docs/Architecture.md) - System design and component interactions
+- [Definition of Done](/docs/contributing/definition-of-done.md) - Requirements for completing work items
+- [Style Guide](/docs/contributing/style-guide.md) - Standards for all project documentation and code
+- [Architecture Documentation](/docs/architecture/README.md) - System design and component interactions
 
 All contributions to Clariad should adhere to these standards.
 
@@ -91,27 +91,49 @@ docker-compose restart vector_db
 ./scripts/test-vector-db.sh
 ```
 
+### Running Tests
+
+```bash
+## Run all tests
+poetry run pytest
+
+## Run specific tests
+poetry run pytest tests/test_orchestrator.py
+
+## Run tests with coverage
+poetry run pytest --cov=clariad
+```
+
+### Code Quality Checks
+
+```bash
+## Run linters
+poetry run pre-commit run --all-files
+
+## Run type checking
+poetry run mypy clariad
+```
+
+## Project Structure
+
+The project follows this structure:
+
+```
+clariad/
+├── clariad/              # Main package
+│   ├── agents/           # Agent implementations
+│   ├── orchestrator/     # LangGraph orchestration
+│   ├── mcp/              # MCP server implementation
+│   ├── memory/           # Semantic memory system
+│   ├── github/           # GitHub integration
+│   └── observability/    # Observability framework
+├── docs/                 # Documentation
+├── tests/                # Tests
+├── scripts/              # Helper scripts
+└── docker/               # Docker configurations
+```
+
 ## Troubleshooting
-
-### Docker Service Issues
-
-If Docker services fail to start:
-
-1. Check for port conflicts:
-   ```bash
-   docker-compose ps
-   ```
-
-2. View detailed logs:
-   ```bash
-   docker-compose logs
-   ```
-
-3. Try restarting with cleanup:
-   ```bash
-   docker-compose down -v  # Careful! This removes volumes
-   docker-compose up -d
-   ```
 
 ### Environment Variable Issues
 
@@ -123,6 +145,28 @@ If your application is not picking up environment variables:
    ```bash
    docker-compose config
    ```
+
+### Database Connection Issues
+
+If you encounter database connection errors:
+
+1. Check service status:
+   ```bash
+   docker-compose ps
+   ```
+
+2. Verify connection settings in the `.env` file
+
+3. Review service logs:
+   ```bash
+   docker-compose logs postgres
+   ```
+
+## Additional Resources
+
+- [Contributing Guide](/docs/contributing/README.md)
+- [Architecture Documentation](/docs/architecture/README.md)
+- [CI/CD Documentation](/docs/ci_cd/README.md)
 
 ---
 

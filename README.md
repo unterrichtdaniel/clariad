@@ -54,13 +54,13 @@ The environment includes:
 - Redis for caching and messaging
 - ClickHouse for analytics
 
-For detailed installation and usage instructions, see the [Getting Started Guide](docs/getting-started.md).
+For detailed installation and usage instructions, see the [Getting Started Guide](docs/getting-started/README.md).
 
 ## Documentation
 
-- [Objectives and Key Results (OKRs)](docs/OKRs.md) - Project vision and measurable objectives
-- [Architecture](docs/Architecture.md) - System architecture and design decisions
-- [Vision and Scope](docs/vision-and-scope.md) - Detailed project vision and scope
+- [Objectives and Key Results (OKRs)](docs/project/okrs.md) - Project vision and measurable objectives
+- [Architecture](docs/architecture/README.md) - System architecture and design decisions
+- [Vision and Scope](docs/project/vision-and-scope.md) - Detailed project vision and scope
 
 ## License
 
